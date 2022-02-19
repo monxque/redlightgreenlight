@@ -7,4 +7,3 @@ A web-based mini game named Red Light Green Light written in JavaScript, styled 
 
 # Author
 Monique Leung ([@monxque](https://github.com/monxque))
-- A Computer Studies student in Langara College
