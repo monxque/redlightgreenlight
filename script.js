@@ -1,5 +1,5 @@
-let timer = false;
-let botTimer = false;
+let timer;
+let botTimer;
 const MAX = 6000;  //max 1 min
 const HEADSTEP = 10;
 const BOTSTEP = 100;
@@ -28,11 +28,9 @@ function stopGame() {
     timeStep = 0;
 
     clearInterval(timer);
-    timer = false;
     current = 0;
 
     clearInterval(botTimer);
-    botTimer = false;
 }
 
 //real time update the timer
@@ -51,7 +49,7 @@ function randomBotRounds() {
     //console.log("botRounds = " + botRounds);
 }
 
-//set random distance in two direction of bot movement 
+//set random distance in two direction of bot movement
 function moveBots(id, range, dir) {
     let bot = document.querySelector("#bot" + id);
     let botDir = bot.getAttribute(dir);
@@ -117,45 +115,44 @@ function moveHead() {
     let turnRate = Math.random() * (3 - 1) + 1;   //each turn will have different turning speed
     let pause = 360 / turnRate;     //calculate the time needed to turn 360 degree, i.e. reaching the forwarding position
     let pauseTime = 300;   //after each turn, the head will stay for 300ms
-    if (!timer) {
-        timer = setInterval(() => {
-            setClock();
-            let redGreenLine = document.querySelector("#rgline");
-            let head = document.querySelector("#head");
-            current++;
-            timeStep++;
+    timer = setInterval(() => {
+        setClock();
+        let redGreenLine = document.querySelector("#rgline");
+        let head = document.querySelector("#head");
+        current++;
+        timeStep++;
 
-            if (timeStep > pause) {             //when the time reaches the pause time (i.e. red light status), stop the head and change line to red
-                redGreenLine.setAttribute("stroke", "rgb(216, 67, 21)");
+        if (timeStep > pause) {             //when the time reaches the pause time (i.e. red light status), stop the head and change line to red
+            redGreenLine.setAttribute("stroke", "rgb(216, 67, 21)");
 
-                for (let j = 1; j < 30; j++) {  //when it is red light, some bots will die (according to their randomly assigned no. of rounds to play till dead)
-                    let bot = document.querySelector("#bot" + j);
-                    let botState = bot.getAttribute("botstate");    //botstate is to define the bot is "A"- active, or "D"- dead
-                    //let randomDeadImg = Math.random() * 2 >= 1;
-                    if (botRounds[j - 1] <= noOfTurns && bot.getAttribute("x") > 105 && botState == "A") {  //if the bot reaches the max. no. of round to play, kill the bot
-                        bot.setAttribute("botstate", "D");      //set botstate from "A"- active to "D"- dead
-                        bot.setAttribute("href", deadImg[parseInt(Math.random() * deadImg.length)])//replace bot image by dead bot image, two versions of dead images will be used randomly
-                        bot.setAttribute("height", "50");       //dead image's height is higher than normal bot image
-                    }
+            for (let j = 1; j < 30; j++) {  //when it is red light, some bots will die (according to their randomly assigned no. of rounds to play till dead)
+                let bot = document.querySelector("#bot" + j);
+                let botState = bot.getAttribute("botstate");    //botstate is to define the bot is "A"- active, or "D"- dead
+                //let randomDeadImg = Math.random() * 2 >= 1;
+                if (botRounds[j - 1] <= noOfTurns && bot.getAttribute("x") > 105 && botState == "A") {  //if the bot reaches the max. no. of round to play, kill the bot
+                    bot.setAttribute("botstate", "D");      //set botstate from "A"- active to "D"- dead
+                    bot.setAttribute("href", deadImg[Math.trunc(Math.random() * deadImg.length)]);//replace bot image by dead bot image, two versions of dead images will be used randomly
+                    bot.setAttribute("height", "50");       //dead image's height is higher than normal bot image
                 }
             }
-            if (timeStep >= pause + pauseTime) {    //when the head stays for 300ms already, move the head again
-                timeStep = 0;
-                turnRate = Math.random() * (3 - 1) + 1;  //randomize the turn rate again
-                pause = 360 / turnRate;     //recalculate the time needed to turn 360 degree
-                //console.log("current" + current + " timeStep" + timeStep + " pause" + pause + " pauseTime" + pauseTime);
-                noOfTurns++;
-                //console.log("noOfTurns = " + noOfTurns);
-                return;
-            }
-            if (timeStep <= pause) {        //before the time reaches the pause time, turn the girl head
-                head.setAttribute("transform", 'rotate(' + timeStep * turnRate + ' 55 62)');
-                redGreenLine.setAttribute("stroke", "green");
-            }
+        }
+        if (timeStep >= pause + pauseTime) {    //when the head stays for 300ms already, move the head again
+            timeStep = 0;
+            turnRate = Math.random() * (3 - 1) + 1;  //randomize the turn rate again
+            pause = 360 / turnRate;     //recalculate the time needed to turn 360 degree
+            //console.log("current" + current + " timeStep" + timeStep + " pause" + pause + " pauseTime" + pauseTime);
+            noOfTurns++;
+            //console.log("noOfTurns = " + noOfTurns);
+            return;
+        }
+        if (timeStep <= pause) {        //before the time reaches the pause time, turn the girl head
+            head.setAttribute("transform", 'rotate(' + timeStep * turnRate + ' 55 62)');
+            redGreenLine.setAttribute("stroke", "green");
+        }
 
-            checkWinLose();
-        }, HEADSTEP);
-    }
+        checkWinLose();
+    }, HEADSTEP);
+
 }
 
 //User click Play or Replay, start the game
@@ -166,7 +163,7 @@ function start() {
     overlay.classList.remove("displayOverlay");
 
     //bots move randomly towards head
-    if (!botTimer && playerState) {
+    if (playerState) {
         botTimer = setInterval(() => {
             let P = 30;
             for (let i = 1; i < P; i = i + 1) {
@@ -183,7 +180,7 @@ function start() {
                 //check win or lose in case the bot crosses the line before the player
                 checkWinLose();
             }
-        }, BOTSTEP)
+        }, BOTSTEP);
     }
 }
 
